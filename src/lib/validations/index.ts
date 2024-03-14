@@ -17,3 +17,10 @@ export const SignInValidationformSchema = z.object({
     .string()
     .min(2, { message: "Password must be at least 2 characters" }),
 });
+
+export const CreatePostValidationformSchema = z.object({
+  caption: z.string(),
+  file: z.string(),
+  location: z.string(),
+  tags: z.string(),
+});
