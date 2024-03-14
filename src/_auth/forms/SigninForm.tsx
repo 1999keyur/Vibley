@@ -15,9 +15,7 @@ import { SignInValidationformSchema } from "@/lib/validations";
 import Loader from "@/components/ui/shared/Loader";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
-import {
-  useSignInAccount,
-} from "@/lib/react-query/queryAndMutation";
+import { useSignInAccount } from "@/lib/react-query/queryAndMutation";
 import { useUserContext } from "@/context/AuthContext";
 
 const SigninForm = () => {
@@ -26,7 +24,7 @@ const SigninForm = () => {
   const { mutateAsync: signInAccount, isPending: isLoadingSignIn } =
     useSignInAccount();
 
-  const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
+  const { checkAuthUser } = useUserContext();
 
   const form = useForm<z.infer<typeof SignInValidationformSchema>>({
     resolver: zodResolver(SignInValidationformSchema),
