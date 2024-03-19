@@ -20,7 +20,8 @@ export const SignInValidationformSchema = z.object({
 
 export const CreatePostValidationformSchema = z.object({
   caption: z.string(),
-  file: z.string(),
+  file: z.custom<File[]>(),
+  // file: z.string(),
   location: z.string(),
   tags: z.string(),
 });
