@@ -86,7 +86,11 @@ export async function getCurrentUser() {
 
 export async function logOutAccount() {
   try {
-    const session = await account.deleteSession("current");
+    const currentSession = await getCurrentSession();
+    if (!currentSession) {
+      throw Error;
+    }
+    const session = await account.deleteSession(currentSession.$id);
     return session;
   } catch (error) {
     console.log(error);
@@ -156,8 +160,6 @@ export async function getFilePreview(fileId: string) {
       "top",
       100
     );
-    // console.log(fileUrl);
-    // if (!fileUrl) throw new Error();
     return fileUrl;
   } catch (error) {
     console.log(error);
@@ -183,3 +185,11 @@ export async function getRecentPosts() {
   if (!posts) throw Error;
   return posts;
 }
+
+export async function getCurrentSession() {
+  const sessions = await account.getSession("current");
+  console.log(sessions);
+  return sessions;
+}
+
+// getCurrentSession()
