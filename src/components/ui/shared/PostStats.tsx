@@ -30,7 +30,8 @@ const PostStats = ({ post, userId }: PostStatsPropTypes) => {
 
   const { mutate: likePost, isPending: isLikeLoading } = useLikePost();
   const { mutate: savePost, isPending: isSaveLoading } = useSavePost();
-  const { mutate: deleteSavedPost } = useDeleteSavedPost();
+  const { mutate: deleteSavedPost, isPending: isSaveDeleteLoading } =
+    useDeleteSavedPost();
 
   const handleLikePost = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -79,7 +80,7 @@ const PostStats = ({ post, userId }: PostStatsPropTypes) => {
         </p>
       </div>
       <div className="flex gap-2">
-        {isSaveLoading ? (
+        {isSaveLoading || isSaveDeleteLoading ? (
           <Loader />
         ) : (
           <img
