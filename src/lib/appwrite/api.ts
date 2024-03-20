@@ -192,4 +192,54 @@ export async function getCurrentSession() {
   return sessions;
 }
 
-// getCurrentSession()
+export async function likePost(postId: string, likesArray: string[]) {
+  try {
+    const likedPost = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      postId,
+      {
+        likes: likesArray,
+      }
+    );
+
+    if (!likedPost) throw Error;
+
+    return likedPost;
+  } catch (error) {
+    console.log(error);
+  }
+}
+export async function savePost(postId: string, userId: string) {
+  try {
+    const savePostRecord = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.savesCollectionId,
+      ID.unique(),
+      {
+        user: userId,
+        post: postId,
+      }
+    );
+    if (!savePostRecord) throw Error;
+
+    return savePostRecord;
+  } catch (error) {
+    console.log(error);
+  }
+}
+export async function deleteSavedPost(savePostRecord: string) {
+  try {
+    const statusCode = await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.savesCollectionId,
+      savePostRecord
+    );
+
+    if (!statusCode) throw Error;
+
+    return { status: "ok" };
+  } catch (error) {
+    console.log(error);
+  }
+}
