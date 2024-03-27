@@ -15,41 +15,80 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import FileUploader from "../ui/shared/FileUploader";
 import { Models } from "appwrite";
-import { useCreatePost } from "@/lib/react-query/queryAndMutation";
+import {
+  useCreatePost,
+  // useDeletePost,
+  useUpdatePost,
+} from "@/lib/react-query/queryAndMutation";
 import { useUserContext } from "@/context/AuthContext";
 import { useToast } from "../ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import Loader from "../ui/shared/Loader";
 
 type PostFormPropsType = {
   post?: Models.Document;
+  action?: "Update" | "Create";
 };
-const PostForm = ({ post }: PostFormPropsType) => {
+const PostForm = ({ post, action }: PostFormPropsType) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { mutateAsync: createPostFunction } = useCreatePost();
-  const form = useForm<z.infer<typeof CreatePostValidationformSchema>>({
+  const { mutateAsync: createPostFunction, isPending: createPostLoading } =
+    useCreatePost();
+  const { mutateAsync: updatePostFunction, isPending: updatePostLoading } =
+    useUpdatePost();
+
+  console.log(post);
+
+  const form = useForm({
     resolver: zodResolver(CreatePostValidationformSchema),
     defaultValues: {
       caption: post ? post?.caption : "",
-      file: [],
+      file: post ? post?.imageURL : [],
       location: post ? post?.location : "",
       tags: post ? post?.tags.join(",") : "",
     },
   });
+
+  useEffect(() => {
+    console.log("post in use effect", post);
+
+    form.reset({
+      caption: post ? post?.caption : "",
+      file: post ? post?.imageURL : [],
+      location: post ? post?.location : "",
+      tags: post ? post?.tags.join(",") : "",
+    });
+  }, [post]);
+
   const { user } = useUserContext();
   // 2. Define a submit handler.
   async function onSubmit(
     values: z.infer<typeof CreatePostValidationformSchema>
   ) {
-    console.log(values);
-    const post = await createPostFunction({
+    if (post && action === "Update") {
+      const updatedPost = await updatePostFunction({
+        ...values,
+        postId: post?.$id,
+        imageId: post?.imageId,
+        imageUrl: post?.imageURL,
+      });
+
+      if (!updatedPost) {
+        toast({
+          title: "Error while updating please try again",
+        });
+      }
+      return navigate(`/posts/${post?.$id}`);
+    }
+    const newPost = await createPostFunction({
       ...values,
       userId: user.id,
     });
 
-    if (!post) {
+    if (!newPost) {
       toast({
-        title: "Please Try again",
+        title: "Error While creating, Please Try again",
       });
     }
 
@@ -87,7 +126,7 @@ const PostForm = ({ post }: PostFormPropsType) => {
               <FormControl>
                 <FileUploader
                   filedChange={field.onChange}
-                  mediaUrl={post?.imageUrl}
+                  mediaUrl={post?.imageURL}
                 />
               </FormControl>
               <FormMessage className="" />
@@ -124,7 +163,6 @@ const PostForm = ({ post }: PostFormPropsType) => {
                   {...field}
                 />
               </FormControl>
-
               <FormMessage className="" />
             </FormItem>
           )}
@@ -134,8 +172,11 @@ const PostForm = ({ post }: PostFormPropsType) => {
           <Button
             type="submit"
             className="shad-button_primary whitespace-nowrap"
+            disabled={updatePostLoading || createPostLoading}
           >
-            Submit
+            {(updatePostLoading || createPostLoading) && <Loader />}
+            {action === "Create" && "Submit"}
+            {action === "Update" && "Update"}
           </Button>
         </div>
       </form>

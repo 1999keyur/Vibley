@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone, FileWithPath } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 
@@ -6,8 +6,9 @@ type FileUploaderType = {
   filedChange: (FIELS: File[]) => void;
   mediaUrl: string;
 };
-const FileUploader = ({ filedChange }: FileUploaderType) => {
-  const [fileUrl, setFileUrl] = useState("");
+const FileUploader = ({ filedChange, mediaUrl }: FileUploaderType) => {
+  const [fileUrl, setFileUrl] = useState(mediaUrl);
+  console.log(fileUrl);
   const [fileUpload, setFileUpload] = useState<File[]>([]);
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[]) => {
@@ -25,6 +26,10 @@ const FileUploader = ({ filedChange }: FileUploaderType) => {
     },
     noClick: true,
   });
+
+  useEffect(() => {
+    setFileUrl(mediaUrl);
+  }, [mediaUrl]);
   return (
     <div
       className="flex flex-col flex-center bg-dark-3 rounded-xl cursor-pointer"
