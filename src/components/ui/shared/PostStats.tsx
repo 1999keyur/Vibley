@@ -14,18 +14,26 @@ type PostStatsPropTypes = {
   userId: string;
 };
 const PostStats = ({ post, userId }: PostStatsPropTypes) => {
-  // console.log(post);
-  // console.log(userId);
   const { data: currentUser } = useGetCurrentUser();
   const savedPostRecord = currentUser?.save.find(
     (record: Models.Document) => record.post.$id === post.$id
   );
-  // console.log(currentUser);
   useEffect(() => {
     setIsSaved(!!savedPostRecord);
   }, [currentUser]);
+
   const likesList = post.likes.map((user: Models.Document) => user.$id);
   const [likes, setLikes] = useState(likesList);
+  useEffect(() => {
+    const updatedLikesList = post.likes.map(
+      (user: Models.Document) => user.$id
+    );
+    const updatedSavedPostRecord = currentUser?.save.find(
+      (record: Models.Document) => record.post.$id === post.$id
+    );
+    setLikes(updatedLikesList);
+    setIsSaved(!!updatedSavedPostRecord);
+  }, [post, currentUser]);
   const [isSaved, setIsSaved] = useState(!!savedPostRecord);
 
   const { mutate: likePost, isPending: isLikeLoading } = useLikePost();
