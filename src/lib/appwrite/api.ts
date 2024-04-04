@@ -88,7 +88,9 @@ export async function logOutAccount() {
   try {
     const currentSession = await getCurrentSession();
     if (!currentSession) {
-      throw Error;
+      
+      throw Error("NoCurrent")
+      // console.log(error);
     }
     const session = await account.deleteSession(currentSession.$id);
     return session;
@@ -252,7 +254,7 @@ export async function getPostById(id: string) {
       id
     );
     if (!postDetails) throw Error;
-    console.log("postDetails",postDetails)
+    console.log("postDetails", postDetails);
     return postDetails;
   } catch (error) {
     console.log(error);
@@ -328,5 +330,39 @@ export async function deletePost(postId: string, imageId: string) {
     return { status: "ok" };
   } catch (error) {
     console.log(error);
+  }
+}
+
+export async function getInfinitePosts({ pageParams }: { pageParams: number }) {
+  const queries: any[] = [Query.orderDesc("$updatedAt"), Query.limit(10)];
+  if (pageParams) {
+    queries.push(Query.cursorAfter(pageParams.toString()));
+  }
+
+  try {
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      queries
+    );
+    if (!posts) throw Error;
+    return posts;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export async function getSearchPosts(searchKey: string) {
+  try {
+    const searchPost = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      [Query.search("caption", searchKey)]
+    );
+    if (!searchPost) throw Error;
+
+    return searchPost;
+  } catch (err) {
+    console.log(err);
   }
 }

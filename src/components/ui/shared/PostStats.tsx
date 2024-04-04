@@ -22,14 +22,14 @@ const PostStats = ({ post, userId }: PostStatsPropTypes) => {
     setIsSaved(!!savedPostRecord);
   }, [currentUser]);
 
-  const likesList = post.likes.map((user: Models.Document) => user.$id);
+  const likesList = post?.likes?.map((user: Models.Document) => user.$id);
   const [likes, setLikes] = useState(likesList);
   useEffect(() => {
-    const updatedLikesList = post.likes.map(
+    const updatedLikesList = post?.likes?.map(
       (user: Models.Document) => user.$id
     );
-    const updatedSavedPostRecord = currentUser?.save.find(
-      (record: Models.Document) => record.post.$id === post.$id
+    const updatedSavedPostRecord = currentUser?.save?.find(
+      (record: Models.Document) => record.post.$id === post?.$id
     );
     setLikes(updatedLikesList);
     setIsSaved(!!updatedSavedPostRecord);
@@ -84,7 +84,7 @@ const PostStats = ({ post, userId }: PostStatsPropTypes) => {
           />
         )}
         <p className="small-medium lg:base-medium">
-          {!isLikeLoading && likes.length}
+          {!isLikeLoading && likes?.length}
         </p>
       </div>
       <div className="flex gap-2">

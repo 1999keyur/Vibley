@@ -1,19 +1,26 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../button";
-import { useLOgOutAccount } from "@/lib/react-query/queryAndMutation";
+import {
+  useGetCurrentUser,
+  useLOgOutAccount,
+} from "@/lib/react-query/queryAndMutation";
 import { useEffect } from "react";
 import { useUserContext } from "@/context/AuthContext";
 
 const Topbar = () => {
   const navigate = useNavigate();
-  const { mutateAsync: logOut, isSuccess } = useLOgOutAccount();
+  const { mutateAsync: logOut, isPending: isLogOutSuccess } =
+    useLOgOutAccount();
 
   const { user } = useUserContext();
 
+  const { data: currentUser, isPending: currentUserLoading } =
+    useGetCurrentUser();
+
   useEffect(() => {
-    if (isSuccess) navigate(0);
+    if (isLogOutSuccess) navigate(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccess]);
+  }, [isLogOutSuccess]);
   return (
     <section className="topbar">
       <div className="flex-between py-4 px-5 ">
@@ -32,7 +39,10 @@ const Topbar = () => {
           <Button
             variant="ghost"
             className="shad-button_ghost"
-            onClick={() => logOut()}
+            onClick={() => {
+              if (currentUser) logOut();
+              else if (!currentUser && !currentUserLoading) navigate(0);
+            }}
           >
             <img src="/assets/icons/logout.svg" alt="logout" />
           </Button>
